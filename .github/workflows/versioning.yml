@@ -70,6 +70,7 @@ jobs:
                   npm --no-git-tag-version version prerelease --preid=rc
                 elif [[ ${{ github.event.action }} == 'closed' && ${{ github.event.pull_request.merged }} == 'true' ]]; then
                   npm version major
+                fi
               fi
             fi
           fi
