@@ -65,15 +65,16 @@ jobs:
                 npm version patch
               fi
             elif [[ $branch_name == 'qa' ]]; then
-              if [[ ${{ github.event.action }} == 'opened' || ${{ github.event.action }} == 'synchronize' ]]; then
+              if [[ ${{ github.event.action }} == 'opened' ]]; then
                 if [[ $(echo "${{ github.event.pull_request.title }}" | grep -o 'breaking change') == 'breaking change' ]]; then
+                  npm --no-git-tag-version version premajor --preid=rc
+                elif [[ ${{ github.event.action }} == 'synchronize' ]]; then
                   npm --no-git-tag-version version prerelease --preid=rc
                 elif [[ ${{ github.event.action }} == 'closed' && ${{ github.event.pull_request.merged }} == 'true' ]]; then
                   npm version major
                 fi
               fi
             fi
-          fi
 
           echo "::set-output name=base_branch::$base_branch"
           echo "::set-output name=branch_name::$branch_name"
@@ -105,7 +106,7 @@ jobs:
         run: |
           if [[ ${{ github.event.action }} == 'closed' && ${{ github.event.pull_request.merged }} == 'true' && ${{ github.event.pull_request.base.ref }} == 'main' && ( 
                   ${{ github.event.pull_request.head.ref }} == *'hotfix'* || 
-                  ( ${{ github.event.pull_request.head.ref }} == 'qa' && $(echo "${{ github.event.pull_request.title }}" | grep -o 'breaking change:') == 'breaking change:' ) 
+                  ( ${{ github.event.pull_request.head.ref }} == 'qa' && $(echo "${{ github.event.pull_request.title }}" | grep -o 'breaking change') == 'breaking change' ) 
                 ) ]]; then
 
             version=$(git describe --tags --abbrev=0 $(git rev-list --tags --max-count=1 main))
